@@ -1,5 +1,5 @@
-const { log, clear } = top.console;
-clear();
+const { log, clear } = console
+clear()
 
 /**
  * 核心库　http://marcinignac.com/blog/timeline-js/
@@ -52,15 +52,20 @@ function rAF() {
 
 // 按钮事件
 const btns = document.querySelectorAll('.btn')
+let timelineIsShow = true;
 btns.forEach(btn => {
     btn.addEventListener('click', e => {
-        tl.container.classList.add('timeline')
         let name = e.currentTarget.className
         if (name.includes('play')) { tl.play() }
         else if (name.includes('pause')) { tl.pause() }
         else if (name.includes('stop')) { tl.stop() }
         else if (name.includes('toggle')) {
-            tl.container.classList.toggle('hide-tl')
+          if (timelineIsShow) {
+            tl.container.style.bottom = -tl.container.offsetHeight + 'px'
+          } else {
+            tl.container.style.bottom = 0
+          }
+          timelineIsShow = !timelineIsShow
         }
     })
 })

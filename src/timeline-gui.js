@@ -39,6 +39,9 @@ Timeline.prototype.initGUI = function() {
   this.initTracks();
   this.load();
 
+  /**
+   * 时间轴容器div
+   */
   this.container = document.createElement("div");
   this.container.style.width = "100%";
   this.container.style.height = this.canvasHeight + "px";
@@ -46,8 +49,12 @@ Timeline.prototype.initGUI = function() {
   this.container.style.position = "fixed";
   this.container.style.left = "0px";
   this.container.style.bottom = "0px";
+  this.container.style.transition = ".5s bottom";
   document.body.appendChild(this.container);
 
+  /**
+   * 面板顶部的分割线
+   */
   this.splitter = document.createElement("div");
   this.splitter.style.width = "100%";
   this.splitter.style.height = "4px";
@@ -55,8 +62,10 @@ Timeline.prototype.initGUI = function() {
   this.splitter.style.position = "fixed";
   this.splitter.style.left = "0px";
   this.splitter.style.bottom = (this.canvasHeight - 2) + "px";
+  // 侦听面板顶部拖拽尺寸
   this.splitter.addEventListener("mousedown", function() {
     function mouseMove(e) {
+      console.log('mouseIsMoving')
       var h = (window.innerHeight - e.clientY);
       self.splitter.style.bottom = (h - 2) + "px";
       self.container.style.height = h + "px";
@@ -66,8 +75,9 @@ Timeline.prototype.initGUI = function() {
       self.save();
     }
     function mouseUp(e) {
+      console.log('mouseIsUp')
       document.body.removeEventListener("mousemove", mouseMove, false);
-     document.body.removeEventListener("mouseup", mouseUp, false);
+      document.body.removeEventListener("mouseup", mouseUp, false);
     }
     document.body.addEventListener("mousemove", mouseMove, false);
     document.body.addEventListener("mouseup", mouseUp, false);
