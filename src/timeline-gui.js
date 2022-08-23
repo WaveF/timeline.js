@@ -45,11 +45,13 @@ Timeline.prototype.initGUI = function() {
   this.container = document.createElement("div");
   this.container.style.width = "100%";
   this.container.style.height = this.canvasHeight + "px";
-  this.container.style.background = "#EEEEEE";
+  this.container.style.background = "rgba(255,255,255,.8)";
   this.container.style.position = "fixed";
   this.container.style.left = "0px";
   this.container.style.bottom = "0px";
   this.container.style.transition = ".5s bottom";
+  this.container.style.boxShadow = "0 0 8px rgba(0,0,0,.1)";
+  this.container.style.backdropFilter = "blur(10px)";
   document.body.appendChild(this.container);
 
   /**
@@ -62,6 +64,7 @@ Timeline.prototype.initGUI = function() {
   this.splitter.style.position = "fixed";
   this.splitter.style.left = "0px";
   this.splitter.style.bottom = (this.canvasHeight - 2) + "px";
+
   // 侦听面板顶部拖拽尺寸
   this.splitter.addEventListener("mousedown", function(e) {
     // e.preventDefault();
@@ -132,6 +135,7 @@ Timeline.prototype.onMouseDown = function(event) {
   }
   else if (x > this.trackLabelWidth && y > this.headerHeight && y < this.canvasHeight - this.timeScrollHeight) {
     //keys
+    console.log('keys')
     this.selectKeys(event.layerX, event.layerY);
     if (this.selectedKeys.length > 0) {
       this.draggingKeys = true;
@@ -328,6 +332,7 @@ Timeline.prototype.selectKeys = function(mouseX, mouseY) {
   this.selectedKeys = [];
 
   var selectedTrack = this.getTrackAt(mouseX, mouseY);
+  console.log('selected track',selectedTrack)
 
   if (!selectedTrack) {
     return;
@@ -372,30 +377,34 @@ Timeline.prototype.updateGUI = function() {
     this.timeScrollThumbPos = Math.max(0, this.timeScrollWidth - this.timeScrollThumbWidth);
   }
 
-
   this.c.clearRect(0, 0, w, h);
 
   //buttons
-  this.drawRect(0*this.headerHeight - 4 * -1, 5, this.headerHeight - 8, this.headerHeight - 8, "#DDDDDD");
-  this.drawRect(1*this.headerHeight - 4 *  0, 5, this.headerHeight - 8, this.headerHeight - 8, "#DDDDDD");
-  this.drawRect(2*this.headerHeight - 4 *  1, 5, this.headerHeight - 8, this.headerHeight - 8, "#DDDDDD");
-  this.drawRect(3*this.headerHeight - 4 *  2, 5, this.headerHeight - 8, this.headerHeight - 8, "#DDDDDD");
+  this.drawRect(0*this.headerHeight - 4 * -1, 5, this.headerHeight - 8, this.headerHeight - 8, "transparent");
+  this.drawRect(1*this.headerHeight - 4 *  0, 5, this.headerHeight - 8, this.headerHeight - 8, "transparent");
+  this.drawRect(2*this.headerHeight - 4 *  1, 5, this.headerHeight - 8, this.headerHeight - 8, "transparent");
+  this.drawRect(3*this.headerHeight - 4 *  2, 5, this.headerHeight - 8, this.headerHeight - 8, "transparent");
 
   //play
-  this.c.strokeStyle = "#777777";
+  this.c.strokeStyle = "#3D81F6";
   this.c.beginPath();
   this.c.moveTo(4 + 6.5, 5 + 5);
   this.c.lineTo(this.headerHeight - 8, this.headerHeight/2+1.5);
   this.c.lineTo(4 + 6.5, this.headerHeight - 8);
   this.c.lineTo(4 + 6.5, 5 + 5);
-  this.c.stroke();
+  this.c.fillStyle = '#3D81F6';
+  this.c.fill();
 
   //pause
-  this.c.strokeRect(this.headerHeight + 5.5, 5 + 5.5, this.headerHeight/6, this.headerHeight - 8 - 11);
-  this.c.strokeRect(this.headerHeight + 5.5 + this.headerHeight/6 + 2, 5 + 5.5, this.headerHeight/6, this.headerHeight - 8 - 11);
+  this.c.rect(this.headerHeight + 5.5, 5 + 5.5, this.headerHeight/6, this.headerHeight - 8 - 11);
+  this.c.rect(this.headerHeight + 5.5 + this.headerHeight/6 + 2, 5 + 5.5, this.headerHeight/6, this.headerHeight - 8 - 11);
+  this.c.fillStyle = '#3D81F6';
+  this.c.fill();
 
   //stop
-  this.c.strokeRect(2*this.headerHeight - 4 + 5.5, 5 + 5.5, this.headerHeight - 8 - 11, this.headerHeight - 8 - 11);
+  this.c.rect(2*this.headerHeight - 4 + 5.5, 5 + 5.5, this.headerHeight - 8 - 11, this.headerHeight - 8 - 11);
+  this.c.fillStyle = '#3D81F6';
+  this.c.fill();
 
   //export
   this.c.beginPath();
@@ -405,7 +414,9 @@ Timeline.prototype.updateGUI = function() {
   this.c.lineTo(3*this.headerHeight - 4 *  2 + 13.5, this.headerHeight - 13.5);
   this.c.moveTo(3*this.headerHeight - 4 *  2 + 5.5, this.headerHeight - 17.5);
   this.c.lineTo(3*this.headerHeight - 4 *  2 + 15.5, this.headerHeight - 17.5);
+  this.c.lineWidth = 2;
   this.c.stroke();
+  this.c.lineWidth = 1;
 
   //tracks area clipping path
   this.c.save();
@@ -427,10 +438,9 @@ Timeline.prototype.updateGUI = function() {
   this.c.restore();
 
   //end of label panel
-  this.drawLine(this.trackLabelWidth, 0, this.trackLabelWidth, h, "#000000");
+  this.drawLine(this.trackLabelWidth, 0, this.trackLabelWidth, h, "#DEDEDE");
 
   //timeline
-
   var timelineStart = 0;
   var timelineEnd = 10;
   var lastTimeLabelX = 0;
@@ -458,12 +468,10 @@ Timeline.prototype.updateGUI = function() {
   this.drawLine(this.timeToX(this.time), 0, this.timeToX(this.time), h, "#FF0000");
 
   //time scale
-
   for(var j=2; j<20; j++) {
     var f = 1.0 - (j*j)/361;
     this.drawLine(7 + f*(this.trackLabelWidth-10), h - this.timeScrollHeight + 4, 7 + f*(this.trackLabelWidth - 10), h - 3, "#999999");
   }
-
   this.c.fillStyle = "#666666";
   this.c.beginPath();
   this.c.moveTo(7 + (1.0-this.timeScale)*(this.trackLabelWidth-10), h - 7);
@@ -472,22 +480,22 @@ Timeline.prototype.updateGUI = function() {
   this.c.fill();
 
   //tracks scrollbar
-  this.drawRect(this.canvas.width - this.tracksScrollWidth, this.headerHeight + 1, this.tracksScrollWidth, this.tracksScrollHeight, "#DDDDDD");
+  this.drawRect(this.canvas.width - this.tracksScrollWidth, this.headerHeight + 1, this.tracksScrollWidth, this.tracksScrollHeight, "#EEE");
   if (this.tracksScrollThumbHeight < this.tracksScrollHeight) {
-    this.drawRect(this.canvas.width - this.tracksScrollWidth, this.headerHeight + 1 + this.tracksScrollThumbPos, this.tracksScrollWidth, this.tracksScrollThumbHeight, "#999999");
+    this.drawRect(this.canvas.width - this.tracksScrollWidth, this.headerHeight + 1 + this.tracksScrollThumbPos, this.tracksScrollWidth, this.tracksScrollThumbHeight, "#999");
   }
 
   //time scrollbar
-  this.drawRect(this.trackLabelWidth, h - this.timeScrollHeight, w - this.trackLabelWidth - this.tracksScrollWidth, this.timeScrollHeight, "#DDDDDD");
+  this.drawRect(this.trackLabelWidth, h - this.timeScrollHeight, w - this.trackLabelWidth - this.tracksScrollWidth, this.timeScrollHeight, "#EEE");
   if (this.timeScrollThumbWidth < this.timeScrollWidth) {
-    this.drawRect(this.trackLabelWidth + 1 + this.timeScrollThumbPos, h - this.timeScrollHeight, this.timeScrollThumbWidth, this.timeScrollHeight, "#999999");
+    this.drawRect(this.trackLabelWidth + 1 + this.timeScrollThumbPos, h - this.timeScrollHeight, this.timeScrollThumbWidth, this.timeScrollHeight, "#999");
   }
 
   //header borders
-  this.drawLine(0, 0, w, 0, "#000000");
-  this.drawLine(0, this.headerHeight, w, this.headerHeight, "#000000");
-  this.drawLine(0, h - this.timeScrollHeight, this.trackLabelWidth, h - this.timeScrollHeight, "#000000");
-  this.drawLine(this.trackLabelWidth, h - this.timeScrollHeight - 1, this.trackLabelWidth, h, "#000000");
+  this.drawLine(0, 0, w, 0, "#DEDEDE");
+  this.drawLine(0, this.headerHeight, w, this.headerHeight, "#DEDEDE");
+  this.drawLine(0, h - this.timeScrollHeight, this.trackLabelWidth, h - this.timeScrollHeight, "#DEDEDE");
+  this.drawLine(this.trackLabelWidth, h - this.timeScrollHeight - 1, this.trackLabelWidth, h, "#DEDEDE");
 };
 
 Timeline.prototype.timeToX = function(time) {
@@ -511,9 +519,9 @@ Timeline.prototype.drawTrack = function(track, y) {
   var xshift = 5;
   if (track.type == "object") {
     //object track header background
-    this.drawRect(0, y - this.trackLabelHeight + 1, this.trackLabelWidth, this.trackLabelHeight-1, "#FFFFFF");
+    this.drawRect(0, y - this.trackLabelHeight + 1, this.trackLabelWidth, this.trackLabelHeight-1, "#3D81F6");
     //label color
-    this.c.fillStyle = "#000000";
+    this.c.fillStyle = "#FFF"; // 高亮选中层名字
   }
   else {
     xshift += 10;
@@ -522,12 +530,16 @@ Timeline.prototype.drawTrack = function(track, y) {
   }
 
   //bottom track line
-  this.drawLine(0, y, this.canvas.width, y, "#FFFFFF");
+  this.drawLine(0, y, this.canvas.width, y, "rgba(0,0,0,.03)");
   //draw track label
+  this.c.font="11px monospace";
   this.c.fillText(track.name, xshift, y - this.trackLabelHeight/4);
 
   //if it's property track then draw anims
   if (track.type == "property") {
+
+    // console.log(`%c[${track.id}]`, 'color:#f6c;font-weight:bold;')
+
     for(var i=0; i<track.keys.length; i++) {
       var key = track.keys[i];
       var selected = false;
@@ -536,9 +548,17 @@ Timeline.prototype.drawTrack = function(track, y) {
       }
       var first = (i === 0);
       var last = (i == track.keys.length - 1);
-      this.drawRombus(this.timeToX(key.time), y - this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, "#999999", true, true, selected ? "#FF0000" : "#666666");
-      this.drawRombus(this.timeToX(key.time), y - this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, "#DDDDDD", !first, !last);
+
+      // 绘画关键帧，这里可以获取到关键帧的坐标点
+      // console.log({
+      //   x: this.timeToX(key.time),
+      //   y: y - this.trackLabelHeight*0.5
+      // })
+      this.drawRombus(this.timeToX(key.time), y - this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, selected ? "#FF0000" : "#06F", true, true, selected ? "#FF0000" : "#06F");
+      this.drawRombus(this.timeToX(key.time), y - this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, selected ? "#FFCDCD" : "#CEE1FE", !first, !last);
+
     }
+    // console.log('----')
   }
 };
 

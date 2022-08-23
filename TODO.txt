@@ -1,6 +1,7 @@
 WISHLIST
 - select & drag multi-keyframes
 - classic/light/dark theme
+- to fix: playhead drag problem
 
 - keyboard shortcuts
 - snapping  
