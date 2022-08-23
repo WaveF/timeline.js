@@ -64,7 +64,7 @@ Timeline.prototype.initGUI = function() {
   this.splitter.style.bottom = (this.canvasHeight - 2) + "px";
   // 侦听面板顶部拖拽尺寸
   this.splitter.addEventListener("mousedown", function(e) {
-    e.preventDefault();
+    // e.preventDefault();
     function mouseMove(e) {
       var h = (window.innerHeight - e.clientY);
       self.splitter.style.bottom = (h - 2) + "px";
@@ -90,6 +90,7 @@ Timeline.prototype.initGUI = function() {
 
   // 构建关键帧编辑框
   this.buildInputDialog();
+
 
   this.canvas.addEventListener('click', function(event) {
      self.onMouseClick(event);
@@ -711,12 +712,13 @@ Timeline.prototype.buildInputDialog = function() {
   this.keyEditDialog.id = "keyEditDialog";
   this.keyEditDialog.style.cssText = `
     position:absolute;
-    background:rgba(255,255,255,.8);
-    padding:15px 20px;
+    background:#FFF;
+    padding:10px 15px 15px;
     left:100px;
     top:100px;
-    box-shadow:0 0 10px rgba(0,0,0,.1);
-    backdrop-filter: blur(10px);
+    border: 1px solid #DEDEDE;
+    box-sizing: border-box;
+    box-shadow: 0 0 4px rgba(0,0,0,.1);
   `;
 
   var easingOptions = "";
@@ -728,12 +730,26 @@ Timeline.prototype.buildInputDialog = function() {
     }
   }
 
-  var controls = "";
-  controls += '<label style="margin-right:10px">Value<input type="text" id="keyEditDialogValue"/></label>';
-  controls += '<label style="margin-right:10px">Easing<select id="keyEditDialogEasing">'+easingOptions+'</label>';
-  controls += '<input id="keyEditDialogOK" style="margin-left:10px; margin-right:10px" type="button" value="OK"/>';
-  controls += '<input id="keyEditDialogCancel" style="margin-right:10px" type="button" value="Cancel"/>';
-  controls += '<a id="keyEditDialogDelete" style="margin-right:5px" href="#">[x]</a>';
+  var controls = `
+    <div style="position:relative; display:flex; flex-direction:column; color:#585858;">
+      <div style="display:flex; height:24px; line-height:24px; opacity:.4;">
+        <span style="margin:0; font-size:14px; line-height:24px; letter-spacing:1px;">KEYFRAME</span>
+        <span id="keyEditDialogCancel" style="cursor:pointer; position:absolute; display:inline-flex; align-items:center; font-size:16px; height:24px; line-height:24px; padding:0 6px; right:-5px; top:-1px;">×</span>
+      </div>
+      <label style="margin-top:10px; height:26px; line-height:26px; display:flex;">
+        <span style="width:55px; overflow:hidden; font-size:14px;">Value</span>
+        <input style="flex:1; border:0; background:#F3F3F3; padding:5px; border-right:8px solid #F3F3F3; outline:0;" type="text" id="keyEditDialogValue"/>
+      </label>
+      <label style="margin-top:10px; height:26px; line-height:26px; display:flex;">
+        <span style="width:55px; overflow:hidden; font-size:14px;">Easing</span>
+        <select style="flex:1; border:0; background:#F3F3F3; padding:5px; border-right:8px solid #F3F3F3; outline:0;" id="keyEditDialogEasing">${easingOptions}</select>
+      </label>
+      <div style="display:flex; gap:10px; margin-left:55px; margin-top:10px;">
+        <input id="keyEditDialogDelete" style="border:0; outline:0; background:#FF6C67; color:#FFF; height:26px; line-height:26px; padding:0 10px; border-radius:2px;" type="button" value="Delete"/>
+        <input id="keyEditDialogOK" style="border:0; outline:0; background:#3D81F6; color:#FFF; height:26px; line-height:26px; padding:0 20px; border-radius:2px;" type="button" value="OK"/>
+      </div>
+    </div>
+  `;
   this.keyEditDialog.innerHTML = controls;
   document.body.appendChild(this.keyEditDialog);
 
@@ -742,6 +758,30 @@ Timeline.prototype.buildInputDialog = function() {
   this.keyEditDialogOK = document.getElementById("keyEditDialogOK");
   this.keyEditDialogCancel = document.getElementById("keyEditDialogCancel");
   this.keyEditDialogDelete = document.getElementById("keyEditDialogDelete");
+
+  // 增加窗体上升动画
+  var dur = .3;
+  var shiftY = -10;
+  this.keyEditDialog.style.transform = `translateY(${shiftY}px)`;
+  this.keyEditDialog.style.animation = `show-timeline-dialog ${dur}s ease-in-out`;
+
+  // 插入固定css
+  this.style = document.createElement('style');
+  document.head.appendChild(this.style);
+  // this.style.sheet.insertRule();
+  this.style.innerHTML += `
+    @Keyframes show-timeline-dialog {
+      from { transform: translateY(0); }
+      to   { transform: translateY(${shiftY}px); }
+    }
+  `;
+
+  this.keyEditDialog.size = {
+    width: this.keyEditDialog.offsetWidth,
+    height: this.keyEditDialog.offsetHeight
+  };
+
+
 
   var self = this;
 
@@ -777,7 +817,9 @@ Timeline.prototype.applyKeyEditDialog = function() {
   this.rebuildSelectedTracks();
 };
 
+// 显示帧编辑面板
 Timeline.prototype.showKeyEditDialog = function(mouseX, mouseY) {
+
   this.keyEditDialogValue.value = this.selectedKeys[0].value;
   for(var i=0; i<this.keyEditDialogEasing.options.length; i++) {
     var option = this.keyEditDialogEasing.options[i];
@@ -787,11 +829,24 @@ Timeline.prototype.showKeyEditDialog = function(mouseX, mouseY) {
       break;
     }
   }
-  this.keyEditDialog.style.left = Math.max(50, mouseX - 200) + "px";
-  this.keyEditDialog.style.top = (mouseY - 50) + "px";
-  this.keyEditDialog.style.display = "block";
+
+  this.hideKeyEditDialog();
+  setTimeout(()=>{ this.keyEditDialog.style.display = "block"; },1);
+  
+
+  let _x, _y;
+  _x = mouseX + this.keyEditDialog.size.width > window.innerWidth ? mouseX - this.keyEditDialog.size.width : mouseX;
+  _y = mouseY - this.keyEditDialog.size.height;
+  
+  this.keyEditDialog.style.left = (_x - 0) + "px";
+  this.keyEditDialog.style.top = (_y - 0) + "px";
 
   this.keyEditDialogValue.focus();
+};
+
+// 隐藏帧编辑面板
+Timeline.prototype.hideKeyEditDialog = function() {
+  this.keyEditDialog.style.display = "none";
 };
 
 Timeline.prototype.deleteSelectedKeys = function() {
@@ -801,10 +856,6 @@ Timeline.prototype.deleteSelectedKeys = function() {
     selectedKey.track.keys.splice(keyIndex, 1);
   }
   this.rebuildSelectedTracks();
-};
-
-Timeline.prototype.hideKeyEditDialog = function() {
-  this.keyEditDialog.style.display = "none";
 };
 
 Timeline.prototype.sortTrackKeys = function(track) {
