@@ -745,7 +745,7 @@ Timeline.prototype.buildInputDialog = function() {
         <select style="flex:1; border:0; background:#F3F3F3; padding:5px; border-right:8px solid #F3F3F3; outline:0;" id="keyEditDialogEasing">${easingOptions}</select>
       </label>
       <div style="display:flex; gap:10px; margin-left:55px; margin-top:10px;">
-        <input id="keyEditDialogDelete" style="border:0; outline:0; background:#FF6C67; color:#FFF; height:24px; line-height:24px; padding:0 10px; border-radius:2px; cursor:pointer;" type="button" value="Delete"/>
+        <input id="keyEditDialogDelete" style="border:0; outline:0; background:#FFF; border:1px solid #FF6C67; color:#FF6C67; height:24px; line-height:24px; padding:0 10px; border-radius:2px; cursor:pointer;" type="button" value="Delete"/>
         <input id="keyEditDialogOK" style="border:0; outline:0; background:#3D81F6; color:#FFF; height:24px; line-height:24px; padding:0 20px; border-radius:2px; cursor:pointer;" type="button" value="OK"/>
       </div>
     </div>
