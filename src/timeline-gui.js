@@ -81,8 +81,7 @@ Timeline.prototype.initGUI = function() {
     document.addEventListener("mousemove", mouseMove, false);
     document.addEventListener("mouseup", mouseUp, false);
   }, false);
-  
-  document.body.appendChild(this.splitter);
+  this.container.appendChild(this.splitter);
 
   this.canvas = document.createElement("canvas");
   this.c = this.canvas.getContext("2d");
@@ -704,6 +703,9 @@ Timeline.prototype.initTracks = function() {
   }
 };
 
+/**
+ * 构建关键帧编辑框
+ */
 Timeline.prototype.buildInputDialog = function() {
   this.keyEditDialog = document.createElement("div");
   this.keyEditDialog.id = "keyEditDialog";
