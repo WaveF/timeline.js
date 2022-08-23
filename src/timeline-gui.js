@@ -745,8 +745,8 @@ Timeline.prototype.buildInputDialog = function() {
         <select style="flex:1; border:0; background:#F3F3F3; padding:5px; border-right:8px solid #F3F3F3; outline:0;" id="keyEditDialogEasing">${easingOptions}</select>
       </label>
       <div style="display:flex; gap:10px; margin-left:55px; margin-top:10px;">
-        <input id="keyEditDialogDelete" style="border:0; outline:0; background:#FF6C67; color:#FFF; height:26px; line-height:26px; padding:0 10px; border-radius:2px;" type="button" value="Delete"/>
-        <input id="keyEditDialogOK" style="border:0; outline:0; background:#3D81F6; color:#FFF; height:26px; line-height:26px; padding:0 20px; border-radius:2px;" type="button" value="OK"/>
+        <input id="keyEditDialogDelete" style="border:0; outline:0; background:#FF6C67; color:#FFF; height:24px; line-height:24px; padding:0 10px; border-radius:2px; cursor:pointer;" type="button" value="Delete"/>
+        <input id="keyEditDialogOK" style="border:0; outline:0; background:#3D81F6; color:#FFF; height:24px; line-height:24px; padding:0 20px; border-radius:2px; cursor:pointer;" type="button" value="OK"/>
       </div>
     </div>
   `;
@@ -761,9 +761,9 @@ Timeline.prototype.buildInputDialog = function() {
 
   // 增加窗体上升动画
   var dur = .3;
-  var shiftY = -10;
-  this.keyEditDialog.style.transform = `translateY(${shiftY}px)`;
-  this.keyEditDialog.style.animation = `show-timeline-dialog ${dur}s ease-in-out`;
+  var offset = 15;
+  this.keyEditDialog.style.transform = `translateY(${-offset}px)`;
+  this.keyEditDialog.style.animation = `show-timeline-dialog ${dur}s ease-out`;
 
   // 插入固定css
   this.style = document.createElement('style');
@@ -772,7 +772,7 @@ Timeline.prototype.buildInputDialog = function() {
   this.style.innerHTML += `
     @Keyframes show-timeline-dialog {
       from { transform: translateY(0); }
-      to   { transform: translateY(${shiftY}px); }
+      to   { transform: translateY(${-offset}px); }
     }
   `;
 
