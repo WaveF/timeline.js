@@ -63,9 +63,9 @@ Timeline.prototype.initGUI = function() {
   this.splitter.style.left = "0px";
   this.splitter.style.bottom = (this.canvasHeight - 2) + "px";
   // 侦听面板顶部拖拽尺寸
-  this.splitter.addEventListener("mousedown", function() {
+  this.splitter.addEventListener("mousedown", function(e) {
+    e.preventDefault();
     function mouseMove(e) {
-      console.log('mouseIsMoving')
       var h = (window.innerHeight - e.clientY);
       self.splitter.style.bottom = (h - 2) + "px";
       self.container.style.height = h + "px";
@@ -75,13 +75,13 @@ Timeline.prototype.initGUI = function() {
       self.save();
     }
     function mouseUp(e) {
-      console.log('mouseIsUp')
-      document.body.removeEventListener("mousemove", mouseMove, false);
-      document.body.removeEventListener("mouseup", mouseUp, false);
+      document.removeEventListener("mousemove", mouseMove, false);
+      document.removeEventListener("mouseup", mouseUp, false);
     }
-    document.body.addEventListener("mousemove", mouseMove, false);
-    document.body.addEventListener("mouseup", mouseUp, false);
+    document.addEventListener("mousemove", mouseMove, false);
+    document.addEventListener("mouseup", mouseUp, false);
   }, false);
+  
   document.body.appendChild(this.splitter);
 
   this.canvas = document.createElement("canvas");
