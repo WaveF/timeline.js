@@ -938,3 +938,11 @@ Timeline.prototype.load = function() {
     }
   }
 };
+
+/**
+ * 清除localStorage存储的动画数据
+ */
+Timeline.prototype.clear = function() {
+  var dataName = "timeline.js.data." + this.name;
+  localStorage.setItem(dataName, '');
+};

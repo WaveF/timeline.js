@@ -7,11 +7,12 @@ clear()
 
 // 清除缓存的动画
 // 不知道为什么它要把动画写到浏览器缓存, 已缓存的动画不会接受新的to()方法, 最好清理一下不然调试时代码改了数值也看不见
-localStorage.setItem('timeline.js.data.Global', '')
+// localStorage.setItem('timeline.js.data.Global', '')
 
 
 // 设置动画无限循环
 const tl = Timeline.getGlobalInstance()
+tl.clear()
 tl.loop(-1)
 tl.fps = 24 /* 这玩意更像是动画时间缩放,因为无论怎样动画看上去都是60fps的,只是动画速度变化了 */
 
@@ -26,14 +27,17 @@ const animProps = {
 
 
 // 添加关键帧, 第一个参数是轨道名, 同名轨道不会再次接受to()方法, 需要手动清理localStorage(见上)
-anim('box', animProps)
-    .to({'y':50}, 0)
-    .to({'y':400}, 1, Timeline.Easing.Cubic.EaseIn)
-    .to({'y':50}, 1, Timeline.Easing.Cubic.EaseOut)
-anim('box', animProps)
-    .to({'angle':0},0)
-    .to({'angle':360}, 1, Timeline.Easing.Cubic.EaseIn)
-    .to({'angle':720}, 1, Timeline.Easing.Cubic.EaseOut)
+const tlAnim = anim
+
+tlAnim('box', animProps)
+  .to({'y':50}, 0)
+  .to({'y':400}, 1, Timeline.Easing.Cubic.EaseIn)
+  .to({'y':50}, 1, Timeline.Easing.Cubic.EaseOut)
+
+tlAnim('box', animProps)
+  .to({'angle':0},0)
+  .to({'angle':360}, 1, Timeline.Easing.Cubic.EaseIn)
+  .to({'angle':720}, 1, Timeline.Easing.Cubic.EaseOut)
 
 
 // 打印数值变化
