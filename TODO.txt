@@ -1,4 +1,6 @@
-WISHLIST                
+WISHLIST
+- select & drag keyframes
+
 - keyboard shortcuts
 - snapping  
 - collapsing object tracks
