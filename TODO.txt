@@ -1,5 +1,6 @@
 WISHLIST
-- select & drag keyframes
+- select & drag multi-keyframes
+- classic/light/dark theme
 
 - keyboard shortcuts
 - snapping  

@@ -8,7 +8,7 @@ More on the project website: http://marcinignac.com/blog/timeline-js/
 
 Created by Marcin Ignac
 
-![Timeline](http://vorg.github.io/timeline.js/screenshots/timeline.png)
+![Timeline](https://ax.minicg.com/images/timeline.png)
 
 ### Usage:
 

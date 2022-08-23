@@ -88,7 +88,7 @@ Timeline.prototype.initGUI = function() {
   this.canvas.width = 0;
   this.container.appendChild(this.canvas);
 
-
+  // 构建关键帧编辑框
   this.buildInputDialog();
 
   this.canvas.addEventListener('click', function(event) {
@@ -97,13 +97,13 @@ Timeline.prototype.initGUI = function() {
   this.canvas.addEventListener('mousedown', function(event) {
     self.onMouseDown(event);
   }, false);
-  document.body.addEventListener('mousemove', function(event) {
+  document.addEventListener('mousemove', function(event) {
     self.onDocumentMouseMove(event);
   }, false);
   this.canvas.addEventListener('mousemove', function(event) {
     self.onCanvasMouseMove(event);
   }, false);
-  document.body.addEventListener('mouseup', function(event) {
+  document.addEventListener('mouseup', function(event) {
     self.onMouseUp(event);
   }, false);
   this.canvas.addEventListener('dblclick', function(event) {
@@ -709,7 +709,15 @@ Timeline.prototype.initTracks = function() {
 Timeline.prototype.buildInputDialog = function() {
   this.keyEditDialog = document.createElement("div");
   this.keyEditDialog.id = "keyEditDialog";
-  this.keyEditDialog.style.cssText = "position:absolute; padding:5px; background: #DDDDDD; font-family:arial; font-size:11px; left: 100px; top:100px; border: 1px solid #AAAAAA; border-radius: 5px;";
+  this.keyEditDialog.style.cssText = `
+    position:absolute;
+    background:rgba(255,255,255,.8);
+    padding:15px 20px;
+    left:100px;
+    top:100px;
+    box-shadow:0 0 10px rgba(0,0,0,.1);
+    backdrop-filter: blur(10px);
+  `;
 
   var easingOptions = "";
 
@@ -723,7 +731,7 @@ Timeline.prototype.buildInputDialog = function() {
   var controls = "";
   controls += '<label style="margin-right:10px">Value<input type="text" id="keyEditDialogValue"/></label>';
   controls += '<label style="margin-right:10px">Easing<select id="keyEditDialogEasing">'+easingOptions+'</label>';
-  controls += '<input id="keyEditDialogOK" style="margin-left: 10px; margin-right:10px" type="button" value="OK"/>';
+  controls += '<input id="keyEditDialogOK" style="margin-left:10px; margin-right:10px" type="button" value="OK"/>';
   controls += '<input id="keyEditDialogCancel" style="margin-right:10px" type="button" value="Cancel"/>';
   controls += '<a id="keyEditDialogDelete" style="margin-right:5px" href="#">[x]</a>';
   this.keyEditDialog.innerHTML = controls;
