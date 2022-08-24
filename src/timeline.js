@@ -433,19 +433,22 @@
 
   Timeline.anim = anim;
 
-  const moduleName = 'TimelineJS';
   if (typeof define === "function" && define.amd) {
+    console.log(111)
       /* AMD */
-      define(moduleName, Timeline);
+      define('Timeline', Timeline);
   } else if (typeof module === "object" && typeof exports === "object") {
+    console.log(222)
       /* CommonJS */
-      module.exports[moduleName] = Timeline;
+      module.exports['TimelineJS'] = Timeline;
   } else if (typeof exports === "object") {
+    console.log(333)
       /* CommonJS2 */
-      exports[moduleName] = Timeline;
+      exports['TimelineJS'] = Timeline;
   } else {
       /* ES5 */
-      root[moduleName] = Timeline;
+      root['Timeline'] = Timeline;
+      console.log(root)
   }
 
 }(this));

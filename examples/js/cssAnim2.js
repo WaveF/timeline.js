@@ -1,12 +1,4 @@
-
-
-
-
-import * as Timeline from '../../src/timeline.js'
-console.log(Timeline)
-
 (function(){
-  return;
   const { log, clear } = console
   clear()
 
