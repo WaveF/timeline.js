@@ -5,7 +5,7 @@
 ![Timeline](https://ax.minicg.com/images/timeline-js.jpg)
 
 演示案例:
-http://vorg.github.io/timeline.js/examples/cssAnimation2.html
+https://wavef.gitee.io/timeline.js/examples/cssAnimation2.html
 
 项目网站:
 http://marcinignac.com/blog/timeline-js/
