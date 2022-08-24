@@ -2,7 +2,7 @@
 
 一个用于动画的时间轴编辑器组件
 
-![Timeline](https://ax.minicg.com/images/timeline.png)
+![Timeline](https://ax.minicg.com/images/timeline-js.jpg)
 
 演示案例:
 http://vorg.github.io/timeline.js/examples/cssAnimation.html
