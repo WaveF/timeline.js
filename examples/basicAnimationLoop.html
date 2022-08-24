@@ -7,42 +7,46 @@
 <script type="text/javascript" src="js/RequestAnimationFrame.js"></script>
 <script type="text/javascript">
 
-var rect = {
-  x: 50,
-  y: 50,
-  width: 40,
-  height: 40,
-  rotation: 0
-};
+(function(){
+  var rect = {
+    x: 50,
+    y: 50,
+    width: 40,
+    height: 40,
+    rotation: 0
+  };
 
-function init() {
-  var canvas = document.getElementById("canvas");
-  var c = canvas.getContext("2d");
+  var anim = Timeline.anim;
 
-  function draw() {
-    c.fillStyle = "#FFFFFF";
-    c.fillRect(0, 0, canvas.width, canvas.height);
+  function init() {
+    var canvas = document.getElementById("canvas");
+    var c = canvas.getContext("2d");
 
-    c.save();
-    c.translate(rect.x, rect.y);
-    c.rotate(rect.rotation);
-    c.fillStyle = "#FF0000";
-    c.fillRect(-rect.width/2, -rect.height/2, rect.width, rect.height);
-    c.restore();
+    function draw() {
+      c.fillStyle = "#FFFFFF";
+      c.fillRect(0, 0, canvas.width, canvas.height);
 
-    requestAnimationFrame(draw, document.body);
+      c.save();
+      c.translate(rect.x, rect.y);
+      c.rotate(rect.rotation);
+      c.fillStyle = "#FF0000";
+      c.fillRect(-rect.width/2, -rect.height/2, rect.width, rect.height);
+      c.restore();
+
+      requestAnimationFrame(draw, document.body);
+    }
+
+    Timeline.getGlobalInstance().loop(2); //loop forever
+
+    anim(rect).to({x:50, rotation:0}, 0).to({x:200, rotation:Math.PI*2}, 2, Timeline.Easing.Cubic.EaseOut)
+    .onStart(function() { console.log('go!'); })
+    .onEnd(function() { console.log('done!'); });
+
+    draw();
   }
 
-  Timeline.getGlobalInstance().loop(2); //loop forever
-
-  anim(rect).to({x:50, rotation:0}, 0).to({x:200, rotation:Math.PI*2}, 2, Timeline.Easing.Cubic.EaseOut)
-  .onStart(function() { console.log('go!'); })
-  .onEnd(function() { console.log('done!'); });
-
-  draw();
-}
-
-window.onload = init;
+  window.onload = init;
+}());
 
 </script>
 </head>

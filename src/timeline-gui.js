@@ -10,6 +10,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
+const { log, clear, dir, error, warn } = console;
+
 Timeline.prototype.initGUI = function() {
   var self = this;
 
@@ -134,11 +136,14 @@ Timeline.prototype.onMouseDown = function(event) {
     }
   }
   else if (x > this.trackLabelWidth && y > this.headerHeight && y < this.canvasHeight - this.timeScrollHeight) {
-    //keys
-    console.log('keys')
+    //keys!!
+    log('keys')
     this.selectKeys(event.layerX, event.layerY);
     if (this.selectedKeys.length > 0) {
       this.draggingKeys = true;
+    }
+    if (this.selectedKeys.length == 0) {
+      //这里准备画框框
     }
     this.cancelKeyClick = false;
   }
@@ -332,7 +337,7 @@ Timeline.prototype.selectKeys = function(mouseX, mouseY) {
   this.selectedKeys = [];
 
   var selectedTrack = this.getTrackAt(mouseX, mouseY);
-  console.log('selected track',selectedTrack)
+  log('selected track',selectedTrack)
 
   if (!selectedTrack) {
     return;
@@ -538,7 +543,7 @@ Timeline.prototype.drawTrack = function(track, y) {
   //if it's property track then draw anims
   if (track.type == "property") {
 
-    // console.log(`%c[${track.id}]`, 'color:#f6c;font-weight:bold;')
+    // log(`%c[${track.id}]`, 'color:#f6c;font-weight:bold;')
 
     for(var i=0; i<track.keys.length; i++) {
       var key = track.keys[i];
@@ -550,7 +555,7 @@ Timeline.prototype.drawTrack = function(track, y) {
       var last = (i == track.keys.length - 1);
 
       // 绘画关键帧，这里可以获取到关键帧的坐标点
-      // console.log({
+      // log({
       //   x: this.timeToX(key.time),
       //   y: y - this.trackLabelHeight*0.5
       // })
@@ -558,7 +563,7 @@ Timeline.prototype.drawTrack = function(track, y) {
       this.drawRombus(this.timeToX(key.time), y - this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, selected ? "#FFCDCD" : "#CEE1FE", !first, !last);
 
     }
-    // console.log('----')
+    // log('----')
   }
 };
 

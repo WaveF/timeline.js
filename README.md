@@ -1,83 +1,98 @@
 # Timeline.js
 
-A compact JavaScript animation library with a GUI timeline for fast editing.
-
-Check it out in this example: http://vorg.github.io/timeline.js/examples/cssAnimation.html
-
-More on the project website: http://marcinignac.com/blog/timeline-js/
-
-Created by Marcin Ignac
+一个用于动画的时间轴编辑器组件
 
 ![Timeline](https://ax.minicg.com/images/timeline.png)
 
-### Usage:
+演示案例:
+http://vorg.github.io/timeline.js/examples/cssAnimation.html
 
-### 1. Animation
+项目网站:
+http://marcinignac.com/blog/timeline-js/
 
-    <script type="text/javascript" src="timeline/timeline.js"></script>
+原作者：
+[Marcin Ignac](https://github.com/vorg)
 
-    anim(target).to(delay, {property:value,...}, duration, easing);
-
-After specifying the target using anim() you can chain as many to()
-animations as you want. To start parallel track simply call
-anim() on the same target again.
-
-### 1.1 Basic example
-
-Animate x property of the sprite object to 100 over 1s using
-quadratic easing. Then wait 5s and animate it back to 0 over 2s
-
-    anim(sprite).to({x:100}, 1, Timeline.Easing.Quadratic.EaseIn).to(5, {x:0}, 2);
-
-### 1.2 Example of parallel animations
-
-Animate width and height of the rect object to 50 and 75 over 3s.
-At the same time animate opacity to 0 over 4s.
-
-    anim(rect).to({width:50, height:75}, 3);
-    anim(rect).to({opacity:0}, 4);
-
-### 2. Timeline GUI
-
-    <script type="text/javascript" src="timeline/gui.js"></script>
-
-    anim(targetName, target).to(delay, {property:value,...}, duration, easing);
-
-Adding gui.js script to the page will open a timeline panel on the
-bottom of the page if any animation was added before first frame. One
-track for every animated property will be created. Click and drag to
-edit key frames, double click to add new frames. Press export button
-(tree horizontal lines) to export code you can then copy paste in
-your scrip	.
-
-In this case we have to specify targetName in anim() that will be
-used when we export the code from the timeline GUI. For each property
-used in to() call there will be an animation track created. Animation
-data is stored in localStorage and shared between sessions so
-refreshing the page and adding new properties and objects to be
-animated is possible. When an animation track exists in localStorage
-all to() calls modifying this property are ignored.
+改版：
+[WaveF](https://gitee.com/wavef)
 
 
-### 2.1 Example
+## 使用
 
-    anim("rect", rect).to({x:rect.x, y:rect.y});
+### 1. 动画
+```html
+<script src="timeline/timeline.js"></script>
+<script>
+  // 注意！在这个 Fork 版本里我已经将 anim() 方法挂到了 Timeline 对象下
+  // 因此不再有全局的 anim 方法，只能通过 Timeline 来访问 anim
+  const { anim } = Timeline;
+  anim(target).to(delay, {property:value,...}, duration, easing);
+</script>
+```
 
-Add the rect object and it's x and y properties to animation and use
-their default values. Target name should be always exactly the same as
-variable name.
+指定`target`后你可以链式引用任意数量的动画，如果希望多个属性动画平行进行，只需要在同一目标上再次使用`anim()`方法
+#### 1.1 基本用法
+
+- 将目标的`x`属性在`1`秒内移动到`100`，并使用`Quadratic.EaseIn`缓动，
+- 停留5秒，再在`2`秒内移动回`0`
+
+```js
+anim(sprite)
+  .to({x:100}, 1, Timeline.Easing.Quadratic.EaseIn)
+  .to(5, {x:0}, 2);
+```
+
+#### 1.2 平行动画
+
+同时驱动`rect`元素的宽和高，使其数值在`3`秒内变化到`50`和`75`，
+并让其透明度一起变化，数值在`4`秒内变化到`0`
+
+```js
+anim(rect).to({width:50, height:75}, 3);
+anim(rect).to({opacity:0}, 4);
+```
+
+### 2. 时间轴面板
+
+```html
+<script src="timeline/gui.js"></script>
+<script>
+  const { anim } = Timeline;
+  anim(targetName, target).to(delay, {property:value,...}, duration, easing);
+</script>
+```
+
+在已创建动画的情况下，添加`gui.js`会在页面底部启用**时间轴面板**，并为每个属性动画创建一条编辑轨道。在时间轴面板上可以点击和拖动关键帧对动画进行调整，在轨道空白区域上双击可以创建新的关键帧，点击**导出按钮**则可以拷贝代码；
+
+在使用**时间轴面板**时，我们需要在`anim()`方法中指定动画目标的别名（这个别名也会被用于导出代码），
+每个使用`to()`驱动的属性，都可以在时间轴面板中找到其轨道；
+
+动画数据会自动记录在`localStorage`中，这样在刷新页面时动画将仍然能进行播放，被缓存的同名动画将会忽略`to()`方法，这意味着你可能即便修改了代码动画也无任何变化，但你可以手动清除掉缓存。
+> 注意：在此 Fork 版本中我添加了一个`Timeline.clear()`方法用于清除已被缓存的动画
+
+
+#### 2.1 时间轴示例
+
+将`rect`元素以指定的别名`(rect)`显示在时间轴上，并让其`x`和`y`属性维持原值，
+由于别名将被用于代码导出，因此强烈建议使用元素的唯一`id`作为其别名
+
+```js
+anim("rect", rect).to({x:rect.x, y:rect.y});
+```
+
 
 ### 3. Node.js
 
-First install the `timeline-js` package from npm
+首先从`npm`安装 `timeline-js`
 
-    npm install timeline-js
+`npm install timeline-js`
 
-And then
+然后这样使用
 
-    var timeline = require('timeline-js');
-    var Timeline = timeline.Timeline;
-    var anim = timeline.anim;
-
-    anim(target).to(delay, {property:value,...}, duration, easing);
-
+```js
+// 注意：Fork版将模块名称从 Timeline 改为了 TimelineJS
+const TimelineJS = require('timeline-js');
+const Timeline = TimelineJS.Timeline;
+const { anim } = Timeline;
+anim(target).to(delay, {property:value,...}, duration, easing);
+```
