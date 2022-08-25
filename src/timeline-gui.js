@@ -38,7 +38,8 @@ Timeline.prototype.initGUI = function() {
   this.timeScale = 1;
   this.selectionBox = {
     startPoint: { x:0, y:0 },
-    endPoint: { x:0, y:0 }
+    endPoint: { x:0, y:0 },
+    bounds: { x:0, y:0, width:0, height:0 }
   };
 
   this.trackNameCounter = 0;
@@ -142,17 +143,15 @@ Timeline.prototype.onMouseDown = function(event) {
   else if (x > this.trackLabelWidth && y > this.headerHeight && y < this.canvasHeight - this.timeScrollHeight) {
     //keys!!
     log('keys')
-    this.selectKeys(event.layerX, event.layerY);
+    this.selectKey(event.layerX, event.layerY);
     if (this.selectedKeys.length > 0) {
       this.draggingKeys = true;
     }
     if (this.selectedKeys.length == 0) {
       //这里准备画框框
       this.drawingSelectionBox = true;
-      this.selectionBox = {
-        startPoint: { x, y },
-        endPoint: { x:0, y:0 }
-      };
+      this.selectionBox.startPoint = { x, y };
+
     }
     this.cancelKeyClick = false;
   }
@@ -233,7 +232,7 @@ Timeline.prototype.onCanvasMouseMove = function(event) {
   }
   if (this.drawingSelectionBox) {
     let { x:sx, y:sy } = this.selectionBox.startPoint;
-    this.selectionBox.endPoint = { x:x-sx, y:y-sy };
+    this.selectionBox.endPoint = { x: x, y: y };
   }
 };
 
@@ -254,6 +253,7 @@ Timeline.prototype.onMouseUp = function(event) {
     this.draggingTimeScrollThumb = false;
   }
   if (this.drawingSelectionBox) {
+    this.selectKeys();
     this.drawingSelectionBox = false;
   }
 };
@@ -349,15 +349,45 @@ Timeline.prototype.getTrackAt = function(mouseX, mouseY) {
   return this.tracks[clickedTrackNumber];
 };
 
-Timeline.prototype.selectKeys = function(mouseX, mouseY) {
+Timeline.prototype.getTracksAt = function(mouseX, mouseY) {
+  var scrollY = this.tracksScrollY * (this.tracks.length * this.trackLabelHeight - this.canvas.height + this.headerHeight);
+  var clickedTrackNumber = Math.floor((mouseY - this.headerHeight + scrollY)/this.trackLabelHeight);
+
+  if (clickedTrackNumber >= 0 && clickedTrackNumber >= this.tracks.length || this.tracks[clickedTrackNumber].type == "object") {
+    return null;
+  }
+
+  return this.tracks[clickedTrackNumber];
+};
+
+Timeline.prototype.selectKey = function(mouseX, mouseY) {
   this.selectedKeys = [];
 
   var selectedTrack = this.getTrackAt(mouseX, mouseY);
-  log('selected track',selectedTrack)
 
   if (!selectedTrack) {
     return;
   }
+
+  for(var i=0; i<selectedTrack.keys.length; i++) {
+    var key = selectedTrack.keys[i];
+    var x = this.timeToX(key.time);
+
+    if (x >= mouseX - this.trackLabelHeight*0.3 && x <= mouseX + this.trackLabelHeight*0.3) {
+      this.selectedKeys.push(key);
+      break;
+    }
+  }
+};
+
+Timeline.prototype.selectKeys = function(bounds) {
+  this.selectedKeys = [];
+  log(this.selectionBox)
+  return;
+  var selectedTrack = this.getTracksAt(mouseX, mouseY);
+  log('selected track',selectedTrack)
+
+  if (!selectedTrack) return;
 
   for(var i=0; i<selectedTrack.keys.length; i++) {
     var key = selectedTrack.keys[i];
@@ -519,10 +549,22 @@ Timeline.prototype.updateGUI = function() {
   this.drawLine(this.trackLabelWidth, h - this.timeScrollHeight - 1, this.trackLabelWidth, h, "#DEDEDE");
 
   // selection box
+  // 坐标翻转不能用于渲染，因为当鼠标不移动的时候会无法翻转
   if (this.drawingSelectionBox) {
     let { x: startX, y: startY } = this.selectionBox.startPoint;
     let { x: endX, y: endY } = this.selectionBox.endPoint;
-    this.drawSelectionBox(startX, startY, endX, endY);
+
+    if (endY < this.headerHeight) { endY = this.headerHeight; }
+    if (endX < this.trackLabelWidth) { endX = this.trackLabelWidth; }
+
+    this.selectionBox.bounds = {
+      x: Math.min(startX, endX),
+      y: Math.min(startY, endY),
+      width: Math.abs(endX - startX),
+      height: Math.abs(endY - startY)
+    };
+
+    this.drawSelectionBox(startX, startY, endX - startX, endY - startY);
   }
 };
 
