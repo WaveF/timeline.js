@@ -1,10 +1,10 @@
 WISHLIST
-- select & drag multi-keyframes
-- classic/light/dark theme
+[x] select & drag multi-keyframes
 - to fix: playhead drag problem
+- classic/light/dark theme
 
-- keyboard shortcuts
 - snapping  
+- keyboard shortcuts
 - collapsing object tracks
 - object 'enabled' markers in the object track for easy 
   scalling/dragging all it's keys
