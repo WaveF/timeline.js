@@ -22,22 +22,22 @@
     var self = this;
     this.fps = 30;
 
-    var fpsInterval = 1000 / this.fps,
-        then = now = Date.now(),
-        elapsedTime = 0;
-    let animate = function() {
-      root.requestAnimationFrame(animate);
+    raf(self.update.bind(self), this.fps);
+  };
 
+  function raf(callback, fps) {
+    let fpsInterval = 1000 / fps, then = now = Date.now(), elapsedTime = 0;
+    let loop = () => {
+      requestAnimationFrame(loop);
       now = Date.now();
       elapsedTime = now - then;
       if (elapsedTime > fpsInterval) {
         then = now - (elapsedTime % fpsInterval);
-        self.update();
+        callback();
       }
     };
-    animate();
-
-  };
+    loop();
+  }
 
   Timeline.getGlobalInstance = function() {
     if (!Timeline.globalInstance) {
