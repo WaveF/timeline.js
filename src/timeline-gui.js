@@ -36,6 +36,10 @@ Timeline.prototype.initGUI = function() {
   this.draggingTimeScale = false;
   this.selectedKeys = [];
   this.timeScale = 1;
+  this.selectionBox = {
+    startPoint: { x:0, y:0 },
+    endPoint: { x:0, y:0 }
+  };
 
   this.trackNameCounter = 0;
   this.initTracks();
@@ -144,6 +148,11 @@ Timeline.prototype.onMouseDown = function(event) {
     }
     if (this.selectedKeys.length == 0) {
       //这里准备画框框
+      this.drawingSelectionBox = true;
+      this.selectionBox = {
+        startPoint: { x, y },
+        endPoint: { x:0, y:0 }
+      };
     }
     this.cancelKeyClick = false;
   }
@@ -222,6 +231,10 @@ Timeline.prototype.onCanvasMouseMove = function(event) {
       this.timeScrollX = 0;
     }
   }
+  if (this.drawingSelectionBox) {
+    let { x:sx, y:sy } = this.selectionBox.startPoint;
+    this.selectionBox.endPoint = { x:x-sx, y:y-sy };
+  }
 };
 
 Timeline.prototype.onMouseUp = function(event) {
@@ -239,6 +252,9 @@ Timeline.prototype.onMouseUp = function(event) {
   }
   if (this.draggingTimeScrollThumb) {
     this.draggingTimeScrollThumb = false;
+  }
+  if (this.drawingSelectionBox) {
+    this.drawingSelectionBox = false;
   }
 };
 
@@ -501,6 +517,13 @@ Timeline.prototype.updateGUI = function() {
   this.drawLine(0, this.headerHeight, w, this.headerHeight, "#DEDEDE");
   this.drawLine(0, h - this.timeScrollHeight, this.trackLabelWidth, h - this.timeScrollHeight, "#DEDEDE");
   this.drawLine(this.trackLabelWidth, h - this.timeScrollHeight - 1, this.trackLabelWidth, h, "#DEDEDE");
+
+  // selection box
+  if (this.drawingSelectionBox) {
+    let { x: startX, y: startY } = this.selectionBox.startPoint;
+    let { x: endX, y: endY } = this.selectionBox.endPoint;
+    this.drawSelectionBox(startX, startY, endX, endY);
+  }
 };
 
 Timeline.prototype.timeToX = function(time) {
@@ -567,7 +590,6 @@ Timeline.prototype.drawTrack = function(track, y) {
   }
 };
 
-
 Timeline.prototype.drawLine = function(x1, y1, x2, y2, color) {
   this.c.strokeStyle = color;
   this.c.beginPath();
@@ -579,6 +601,24 @@ Timeline.prototype.drawLine = function(x1, y1, x2, y2, color) {
 Timeline.prototype.drawRect = function(x, y, w, h, color) {
   this.c.fillStyle = color;
   this.c.fillRect(x, y, w, h);
+};
+
+Timeline.prototype.drawSelectionBox = function(x, y, w, h) {
+  // this.c.save();
+  this.c.beginPath();
+  this.c.moveTo(x, y);
+  this.c.lineTo(x + w, y);
+  this.c.lineTo(x + w, y + h);
+  this.c.lineTo(x, y + h);
+  this.c.lineTo(x, y);
+
+  this.c.fillStyle = "rgba(0,204,255,.1)";
+  this.c.fill();
+
+  this.c.lineWidth = 1;
+  this.c.strokeStyle = "rgba(0,204,255,1)";
+  this.c.stroke();
+  // this.c.restore();
 };
 
 Timeline.prototype.drawCenteredRect = function(x, y, w, h, color) {
