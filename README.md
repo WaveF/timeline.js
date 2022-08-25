@@ -17,17 +17,22 @@ http://marcinignac.com/blog/timeline-js/
 [WaveF](https://gitee.com/wavef)
 
 
+## 安装
+
+#### cdn
+```html
+<script src="timeline/timeline.js"></script>
+```
+
+
 ## 使用
 
 ### 1. 动画
-```html
-<script src="timeline/timeline.js"></script>
-<script>
+```js
   // 注意！在这个 Fork 版本里我已经将 anim() 方法挂到了 Timeline 对象下
   // 因此不再有全局的 anim 方法，只能通过 Timeline 来访问 anim
   const { anim } = Timeline;
   anim(target).to(delay, {property:value,...}, duration, easing);
-</script>
 ```
 
 指定`target`后你可以链式引用任意数量的动画，如果希望多个属性动画平行进行，只需要在同一目标上再次使用`anim()`方法
@@ -87,6 +92,7 @@ anim("rect", rect).to({x:rect.x, y:rect.y});
 首先从`npm`安装 `timeline-js`
 
 `npm install timeline-js`
+> 注意：npm目前下载的仍是原作者的v0.1版，建议暂时从我的repo下载文件到本地进行引用，以后我可能会重构一个版本发布到npm！
 
 然后这样使用
 
