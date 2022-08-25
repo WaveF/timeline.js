@@ -41,7 +41,7 @@ Timeline.prototype.initGUI = function() {
     endPoint: { x:0, y:0 },
     bounds: { x:0, y:0, width:0, height:0 }
   };
-
+  this.mouseDownPoint = { x:0, y:0 };
   this.trackNameCounter = 0;
   this.initTracks();
   this.load();
@@ -101,7 +101,6 @@ Timeline.prototype.initGUI = function() {
   // 构建关键帧编辑框
   this.buildInputDialog();
 
-
   this.canvas.addEventListener('click', function(event) {
      self.onMouseClick(event);
   }, false);
@@ -122,11 +121,15 @@ Timeline.prototype.initGUI = function() {
   }, false);
 };
 
+/**
+ * 鼠标按下
+ */
 Timeline.prototype.onMouseDown = function(event) {
   this.selectedKeys = [];
-
+  
   var x = event.layerX;
   var y = event.layerY;
+  this.mouseDownPoint = { x, y };
 
   if (x > this.trackLabelWidth && y < this.headerHeight) {
     //timeline
@@ -141,16 +144,22 @@ Timeline.prototype.onMouseDown = function(event) {
     }
   }
   else if (x > this.trackLabelWidth && y > this.headerHeight && y < this.canvasHeight - this.timeScrollHeight) {
+
+    // 选择一个关键帧
     this.selectKey(event.layerX, event.layerY);
+
+    // 这里准备拖拽关键帧
     if (this.selectedKeys.length > 0) {
       this.draggingKeys = true;
     }
-    if (this.selectedKeys.length == 0) {
-      //这里准备画框框
+
+    // 这里准备画框框
+    if (this.selectedKeys.length === 0) {
       this.drawingSelectionBox = true;
       this.selectionBox.startPoint = { x, y };
       this.selectionBox.endPoint = { x, y };
     }
+
     this.cancelKeyClick = false;
   }
   else if (x < this.trackLabelWidth && y > this.canvasHeight - this.timeScrollHeight) {
@@ -168,32 +177,47 @@ Timeline.prototype.onMouseDown = function(event) {
   }
 };
 
+/**
+ * 鼠标在浏览器移动 
+ */
 Timeline.prototype.onDocumentMouseMove = function(event) {
   var x = event.layerX;
   var y = event.layerY;
+  var deltaX = this.mouseDownPoint.x - x;
 
+  // 这里是拖动播放头
   if (this.draggingTime) {
     this.time = this.xToTime(x);
     var animationEnd = this.findAnimationEnd();
     if (this.time < 0) this.time = 0;
     if (this.time > animationEnd) this.time = animationEnd;
+    log(this.time)
   }
+
+  // 这里是拖动关键帧
   if (this.draggingKeys) {
-    for(var i=0; i<this.selectedKeys.length; i++) {
-      var draggedKey = this.selectedKeys[i];
-      draggedKey.time = Math.max(0, this.xToTime(x));
-      this.sortTrackKeys(draggedKey.track);
+
+    this.selectedKeys.forEach(key => {
+      let offset = key._offset;
+      log(offset)
+      key.time = Math.max(0, this.xToTime(x + offset));
+      this.sortTrackKeys(key.track);
       this.rebuildSelectedTracks();
-    }
+    });
+
     this.cancelKeyClick = true;
     this.timeScrollThumbPos = this.timeScrollX * (this.timeScrollWidth - this.timeScrollThumbWidth);
   }
+
   if (this.draggingTimeScale) {
     this.timeScale = Math.max(0.01, Math.min((this.trackLabelWidth - x) / this.trackLabelWidth, 1));
     this.save();
   }
 };
 
+/**
+ * 鼠标在画布上移动
+ */
 Timeline.prototype.onCanvasMouseMove = function(event) {
   var x = event.layerX;
   var y = event.layerY;
@@ -233,6 +257,9 @@ Timeline.prototype.onCanvasMouseMove = function(event) {
   }
 };
 
+/**
+ * 鼠标松开
+ */
 Timeline.prototype.onMouseUp = function(event) {
   if (this.draggingTime) {
     this.draggingTime = false;
@@ -249,12 +276,27 @@ Timeline.prototype.onMouseUp = function(event) {
   if (this.draggingTimeScrollThumb) {
     this.draggingTimeScrollThumb = false;
   }
+
+  // 拖动多个关键帧
   if (this.drawingSelectionBox) {
+    this.draggingKeys = true;
     this.selectKeys(this.selectionBox.bounds);
+
+    // 记录每个关键帧与鼠标的偏移量
+    this.selectedKeys.forEach(key => {
+      let keyX = this.timeToX(key.time);
+      key._offset =  keyX - event.pageX;
+    });
+  }
+  
+  if (this.drawingSelectionBox) {
     this.drawingSelectionBox = false;
   }
 };
 
+/**
+ * 鼠标单击
+ */
 Timeline.prototype.onMouseClick = function(event) {
   if (event.layerX < 1*this.headerHeight - 4 * 0 && event.layerY < this.headerHeight) {
     this.play();
@@ -270,33 +312,45 @@ Timeline.prototype.onMouseClick = function(event) {
   if (event.layerX > 3*this.headerHeight - 4 * 2 && event.layerX < 4*this.headerHeight - 4 * 3 && event.layerY < this.headerHeight) {
     this.exportCode();
   }
-
-  if (this.selectedKeys.length > 0 && !this.cancelKeyClick) {
-    this.showKeyEditDialog(event.pageX, event.pageY);
-  }
 };
 
+/**
+ * 鼠标双击
+ */
 Timeline.prototype.onMouseDoubleClick = function(event) {
   var x = event.layerX;
   var y = event.layerY;
 
-  if (x > this.trackLabelWidth && y < this.headerHeight) {
-    //timeline
-    var timeStr = prompt("Enter time") || "0:0:0";
-    var timeArr = timeStr.split(":");
-    var seconds = 0;
-    var minutes = 0;
-    var hours = 0;
-    if (timeArr.length > 0) seconds = parseInt(timeArr[timeArr.length-1], 10);
-    if (timeArr.length > 1) minutes = parseInt(timeArr[timeArr.length-2], 10);
-    if (timeArr.length > 2) hours = parseInt(timeArr[timeArr.length-3], 10);
-    this.time = this.totalTime = hours * 60 * 60 + minutes * 60 + seconds;
+  if (this.selectedKeys.length === 1) {
+    // 双击编辑关键帧
+    if (!this.cancelKeyClick) {
+      this.showKeyEditDialog(event.pageX, event.pageY);
+    }
   }
-  else if (x > this.trackLabelWidth && this.selectedKeys.length === 0 && y > this.headerHeight && y < this.canvasHeight - this.timeScrollHeight) {
-    this.addKeyAt(x, y);
+  else if (this.selectedKeys.length === 0) {
+
+    if (x > this.trackLabelWidth && y < this.headerHeight) {
+      //timeline
+      var timeStr = prompt("Enter time") || "0:0:0";
+      var timeArr = timeStr.split(":");
+      var seconds = 0;
+      var minutes = 0;
+      var hours = 0;
+      if (timeArr.length > 0) seconds = parseInt(timeArr[timeArr.length-1], 10);
+      if (timeArr.length > 1) minutes = parseInt(timeArr[timeArr.length-2], 10);
+      if (timeArr.length > 2) hours = parseInt(timeArr[timeArr.length-3], 10);
+      this.time = this.totalTime = hours * 60 * 60 + minutes * 60 + seconds;
+    }
+    else if (x > this.trackLabelWidth && this.selectedKeys.length === 0 && y > this.headerHeight && y < this.canvasHeight - this.timeScrollHeight) {
+      this.addKeyAt(x, y);
+    }
+
   }
 };
 
+/**
+ * 新增关键帧
+ */
 Timeline.prototype.addKeyAt = function(mouseX, mouseY) {
   var selectedTrack = this.getTrackAt(mouseX, mouseY);
 
@@ -335,6 +389,9 @@ Timeline.prototype.addKeyAt = function(mouseX, mouseY) {
   this.rebuildSelectedTracks();
 };
 
+/**
+ * 获取鼠标所在位置的轨道
+ */
 Timeline.prototype.getTrackAt = function(mouseX, mouseY) {
   var scrollY = this.tracksScrollY * (this.tracks.length * this.trackLabelHeight - this.canvas.height + this.headerHeight);
   var clickedTrackNumber = Math.floor((mouseY - this.headerHeight + scrollY)/this.trackLabelHeight);
@@ -346,6 +403,9 @@ Timeline.prototype.getTrackAt = function(mouseX, mouseY) {
   return this.tracks[clickedTrackNumber];
 };
 
+/**
+ * 选中单个关键帧
+ */
 Timeline.prototype.selectKey = function(mouseX, mouseY) {
   this.selectedKeys = [];
 
@@ -359,6 +419,9 @@ Timeline.prototype.selectKey = function(mouseX, mouseY) {
     var key = selectedTrack.keys[i];
     var x = this.timeToX(key.time);
 
+    let keyX = this.timeToX(key.time);
+    key._offset =  keyX - mouseX;
+
     if (x >= mouseX - this.trackLabelHeight*0.3 && x <= mouseX + this.trackLabelHeight*0.3) {
       this.selectedKeys.push(key);
       break;
@@ -367,7 +430,7 @@ Timeline.prototype.selectKey = function(mouseX, mouseY) {
 };
 
 /**
- * 从选区选择多个轨道
+ * 从选区选中多个轨道
  */
 Timeline.prototype.getTracksFromBounds = function(bounds) {
   var selectedTracks = [];
@@ -382,31 +445,30 @@ Timeline.prototype.getTracksFromBounds = function(bounds) {
       selectedTracks.push(track);
     }
   });
-  
+
   return selectedTracks;
 };
 
 /**
- * 选择多个关键帧
+ * 选中多个关键帧
  */
 Timeline.prototype.selectKeys = function(bounds) {
   this.selectedKeys = [];
-
+  var fromMouseX = bounds.x;
+  var toMouseX = bounds.x + bounds.width;
+  var keySize = this.trackLabelHeight * 0.3;
 
   var selectedTracks = this.getTracksFromBounds(bounds);
-  return;
+  if (selectedTracks.length === 0) return;
 
-  if (!selectedTrack) return;
-
-  for(var i=0; i<selectedTrack.keys.length; i++) {
-    var key = selectedTrack.keys[i];
-    var x = this.timeToX(key.time);
-
-    if (x >= mouseX - this.trackLabelHeight*0.3 && x <= mouseX + this.trackLabelHeight*0.3) {
-      this.selectedKeys.push(key);
-      break;
-    }
-  }
+  selectedTracks.forEach(track => {
+    track.keys.forEach(key => {
+      var x = this.timeToX(key.time);
+      if (x >= fromMouseX - keySize && x <= toMouseX + keySize) {
+        this.selectedKeys.push(key);
+      }
+    });
+  });
 };
 
 Timeline.prototype.preUpdate = function() {
@@ -617,8 +679,6 @@ Timeline.prototype.drawTrack = function(track, y) {
   //if it's property track then draw anims
   if (track.type == "property") {
 
-    // log(`%c[${track.id}]`, 'color:#f6c;font-weight:bold;')
-
     for(var i=0; i<track.keys.length; i++) {
       var key = track.keys[i];
       var selected = false;
@@ -629,15 +689,10 @@ Timeline.prototype.drawTrack = function(track, y) {
       var last = (i == track.keys.length - 1);
 
       // 绘画关键帧，这里可以获取到关键帧的坐标点
-      // log({
-      //   x: this.timeToX(key.time),
-      //   y: y - this.trackLabelHeight*0.5
-      // })
       this.drawRombus(this.timeToX(key.time), y - this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, selected ? "#FF0000" : "#06F", true, true, selected ? "#FF0000" : "#06F");
       this.drawRombus(this.timeToX(key.time), y - this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, this.trackLabelHeight*0.5, selected ? "#FFCDCD" : "#CEE1FE", !first, !last);
 
     }
-    // log('----')
   }
 };
 
