@@ -199,7 +199,6 @@ Timeline.prototype.onDocumentMouseMove = function(event) {
 
     this.selectedKeys.forEach(key => {
       let offset = key._offset;
-      log(offset)
       key.time = Math.max(0, this.xToTime(x + offset));
       this.sortTrackKeys(key.track);
       this.rebuildSelectedTracks();
@@ -909,7 +908,11 @@ Timeline.prototype.buildInputDialog = function() {
       </div>
       <label style="margin-top:10px; height:26px; line-height:26px; display:flex;">
         <span style="width:55px; overflow:hidden; font-size:14px;">Value</span>
-        <input style="flex:1; border:0; background:#F3F3F3; padding:5px; border-right:8px solid #F3F3F3; outline:0;" type="text" id="keyEditDialogValue"/>
+        <input style="flex:1; border:0; background:#F3F3F3; padding:5px; border-right:8px solid #F3F3F3; outline:0;" type="number" id="keyEditDialogValue"/>
+      </label>
+      <label style="margin-top:10px; height:26px; line-height:26px; display:flex;">
+        <span style="width:55px; overflow:hidden; font-size:14px;">Time</span>
+        <input style="flex:1; border:0; background:#F3F3F3; padding:5px; border-right:8px solid #F3F3F3; outline:0;" type="number" id="keyEditDialogTime"/>
       </label>
       <label style="margin-top:10px; height:26px; line-height:26px; display:flex;">
         <span style="width:55px; overflow:hidden; font-size:14px;">Easing</span>
@@ -925,6 +928,7 @@ Timeline.prototype.buildInputDialog = function() {
   document.body.appendChild(this.keyEditDialog);
 
   this.keyEditDialogValue = document.getElementById("keyEditDialogValue");
+  this.keyEditDialogTime = document.getElementById("keyEditDialogTime");
   this.keyEditDialogEasing = document.getElementById("keyEditDialogEasing");
   this.keyEditDialogOK = document.getElementById("keyEditDialogOK");
   this.keyEditDialogCancel = document.getElementById("keyEditDialogCancel");
@@ -976,14 +980,16 @@ Timeline.prototype.buildInputDialog = function() {
 
 Timeline.prototype.applyKeyEditDialog = function() {
   var value = Number(this.keyEditDialogValue.value);
-  if (isNaN(value)) {
-    return;
-  }
+  var time = Number(this.keyEditDialogTime.value);
+
+  if (isNaN(value) || isNaN(time)) return;
+
   var selectedOption = this.keyEditDialogEasing.options[this.keyEditDialogEasing.selectedIndex];
   var easing = Timeline.easingMap[selectedOption.value] ;
   for(var i=0; i<this.selectedKeys.length; i++) {
     this.selectedKeys[i].easing = easing;
     this.selectedKeys[i].value = value;
+    this.selectedKeys[i].time = time;
   }
   this.rebuildSelectedTracks();
 };
@@ -992,6 +998,8 @@ Timeline.prototype.applyKeyEditDialog = function() {
 Timeline.prototype.showKeyEditDialog = function(mouseX, mouseY) {
 
   this.keyEditDialogValue.value = this.selectedKeys[0].value;
+  this.keyEditDialogTime.value = this.selectedKeys[0].time;
+
   for(var i=0; i<this.keyEditDialogEasing.options.length; i++) {
     var option = this.keyEditDialogEasing.options[i];
     var easingFunction = Timeline.easingMap[option.value];
