@@ -22,13 +22,23 @@
   const box = document.querySelector('#box')
   const animProps = {
       element: box,
+      x: 0,
       y: 0,
-      angle: 0
+      angle: 0,
+      scale: 0,
+      opacity: 0,
+      hue: 0,
+      rounded: 0
   }
 
 
   // 添加关键帧, 第一个参数是轨道名, 同名轨道不会再次接受to()方法, 需要手动清理localStorage(见上)
   const tlAnim = Timeline.anim
+
+  tlAnim('box', animProps)
+    .to({'x':50}, 0)
+    .to({'x':400}, 1, Timeline.Easing.Cubic.EaseIn)
+    .to({'x':50}, 1, Timeline.Easing.Cubic.EaseOut)
 
   tlAnim('box', animProps)
     .to({'y':50}, 0)
@@ -40,6 +50,25 @@
     .to({'angle':360}, 1, Timeline.Easing.Cubic.EaseIn)
     .to({'angle':720}, 1, Timeline.Easing.Cubic.EaseOut)
 
+  tlAnim('box', animProps)
+    .to({'scale':1}, 0)
+    .to({'scale':.4}, 1, Timeline.Easing.Cubic.EaseIn)
+    .to({'scale':1}, 1, Timeline.Easing.Cubic.EaseOut)
+
+  tlAnim('box', animProps)
+    .to({'opacity':1}, 0)
+    .to({'opacity':.4}, 1, Timeline.Easing.Cubic.EaseIn)
+    .to({'opacity':1}, 1, Timeline.Easing.Cubic.EaseOut)
+
+  tlAnim('box', animProps)
+    .to({'hue':1}, 0)
+    .to({'hue':180}, 1, Timeline.Easing.Cubic.EaseIn)
+    .to({'hue':360}, 1, Timeline.Easing.Cubic.EaseOut)
+
+  tlAnim('box', animProps)
+    .to({'rounded':0}, 0)
+    .to({'rounded':50}, 1, Timeline.Easing.Cubic.EaseIn)
+    .to({'rounded':0}, 1, Timeline.Easing.Cubic.EaseOut)
 
   // 打印数值变化
   // setInterval(`log(animProps)`, 500)
@@ -49,9 +78,13 @@
   // timeline-js 不与动画耦合,只驱动数值,因此可用于 DOM/SVG/3D 等不同场景,主要是它还带了个时间轴面板!!
   rAF();
   function rAF() {
-      animProps.element.style.top = `${animProps.y}px`
-      animProps.element.style.transform = `rotate(${animProps.angle}deg)`
-      requestAnimationFrame(rAF, document.body)
+    animProps.element.style.left = `${animProps.x}px`
+    animProps.element.style.top = `${animProps.y}px`
+    animProps.element.style.opacity = `${animProps.opacity}`
+    animProps.element.style.borderRadius = `${animProps.rounded}px`
+    animProps.element.style.filter = `hue-rotate(${animProps.hue}deg)`
+    animProps.element.style.transform = `rotate(${animProps.angle}deg) scale(${animProps.scale}) translateZ(0)`
+    requestAnimationFrame(rAF, document.body)
   }
 
 

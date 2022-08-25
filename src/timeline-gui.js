@@ -141,8 +141,6 @@ Timeline.prototype.onMouseDown = function(event) {
     }
   }
   else if (x > this.trackLabelWidth && y > this.headerHeight && y < this.canvasHeight - this.timeScrollHeight) {
-    //keys!!
-    log('keys')
     this.selectKey(event.layerX, event.layerY);
     if (this.selectedKeys.length > 0) {
       this.draggingKeys = true;
@@ -151,7 +149,7 @@ Timeline.prototype.onMouseDown = function(event) {
       //这里准备画框框
       this.drawingSelectionBox = true;
       this.selectionBox.startPoint = { x, y };
-
+      this.selectionBox.endPoint = { x, y };
     }
     this.cancelKeyClick = false;
   }
@@ -231,8 +229,7 @@ Timeline.prototype.onCanvasMouseMove = function(event) {
     }
   }
   if (this.drawingSelectionBox) {
-    let { x:sx, y:sy } = this.selectionBox.startPoint;
-    this.selectionBox.endPoint = { x: x, y: y };
+    this.selectionBox.endPoint = { x, y };
   }
 };
 
@@ -253,7 +250,7 @@ Timeline.prototype.onMouseUp = function(event) {
     this.draggingTimeScrollThumb = false;
   }
   if (this.drawingSelectionBox) {
-    this.selectKeys();
+    this.selectKeys(this.selectionBox.bounds);
     this.drawingSelectionBox = false;
   }
 };
@@ -349,17 +346,6 @@ Timeline.prototype.getTrackAt = function(mouseX, mouseY) {
   return this.tracks[clickedTrackNumber];
 };
 
-Timeline.prototype.getTracksAt = function(mouseX, mouseY) {
-  var scrollY = this.tracksScrollY * (this.tracks.length * this.trackLabelHeight - this.canvas.height + this.headerHeight);
-  var clickedTrackNumber = Math.floor((mouseY - this.headerHeight + scrollY)/this.trackLabelHeight);
-
-  if (clickedTrackNumber >= 0 && clickedTrackNumber >= this.tracks.length || this.tracks[clickedTrackNumber].type == "object") {
-    return null;
-  }
-
-  return this.tracks[clickedTrackNumber];
-};
-
 Timeline.prototype.selectKey = function(mouseX, mouseY) {
   this.selectedKeys = [];
 
@@ -380,12 +366,35 @@ Timeline.prototype.selectKey = function(mouseX, mouseY) {
   }
 };
 
+/**
+ * 从选区选择多个轨道
+ */
+Timeline.prototype.getTracksFromBounds = function(bounds) {
+  var selectedTracks = [];
+  var scrollY = this.tracksScrollY * (this.tracks.length * this.trackLabelHeight - this.canvas.height + this.headerHeight);
+  var startY = bounds.y + scrollY - this.headerHeight;
+  var endY = bounds.y + bounds.height + scrollY - this.headerHeight;
+  var fromTrackIdx = Math.floor(startY / this.trackLabelHeight);
+  var toTrackIdx = Math.floor(endY / this.trackLabelHeight);
+
+  this.tracks.forEach((track, idx) => {
+    if (idx >= fromTrackIdx && idx <= toTrackIdx) {
+      selectedTracks.push(track);
+    }
+  });
+  
+  return selectedTracks;
+};
+
+/**
+ * 选择多个关键帧
+ */
 Timeline.prototype.selectKeys = function(bounds) {
   this.selectedKeys = [];
-  log(this.selectionBox)
+
+
+  var selectedTracks = this.getTracksFromBounds(bounds);
   return;
-  var selectedTrack = this.getTracksAt(mouseX, mouseY);
-  log('selected track',selectedTrack)
 
   if (!selectedTrack) return;
 
