@@ -12,30 +12,30 @@
 
 (function(root){
   var Timeline = function() {
-      this.name = "Global";
-      this.anims = [];
-      this.time = 0;
-      this.totalTime = 0;
-      this.loopCount = 0;
-      this.loopMode = 0;
-      this.playing = true;
-      var self = this;
-      this.fps = 30;
+    this.name = "Global";
+    this.anims = [];
+    this.time = 0;
+    this.totalTime = 0;
+    this.loopCount = 0;
+    this.loopMode = 0;
+    this.playing = true;
+    var self = this;
+    this.fps = 30;
 
-  var fpsInterval = 1000 / this.fps,
-      then = now = Date.now(),
-      elapsed = 0;
-  let tween = function() {
-    root.requestAnimationFrame(tween);
+    var fpsInterval = 1000 / this.fps,
+        then = now = Date.now(),
+        elapsedTime = 0;
+    let animate = function() {
+      root.requestAnimationFrame(animate);
 
-    now = Date.now();
-    elapsed = now - then;
-    if (elapsed > fpsInterval) {
-      then = now - (elapsed % fpsInterval);
-      self.update();
-    }
-  };
-  tween();
+      now = Date.now();
+      elapsedTime = now - then;
+      if (elapsedTime > fpsInterval) {
+        then = now - (elapsedTime % fpsInterval);
+        self.update();
+      }
+    };
+    animate();
 
   };
 
@@ -72,16 +72,8 @@
     //placeholder for hooks like GUI rendering
   };
 
-  Timeline.prototype.update = function(deltaTime) {
-    if (deltaTime !== undefined) {
-      if (this.loopInterval !== 0) {
-        clearInterval(this.loopInterval);
-        this.loopInterval = 0;
-      }
-    }
-    else {
-      deltaTime = 1 / this.fps;
-    }
+  Timeline.prototype.update = function(dt) {
+    var deltaTime = dt || 1 / this.fps;
 
     this.preUpdate();
 
