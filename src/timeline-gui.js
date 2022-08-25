@@ -10,8 +10,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-const { log, clear, dir, error, warn } = console;
-
 Timeline.prototype.initGUI = function() {
   var self = this;
 
@@ -191,7 +189,6 @@ Timeline.prototype.onDocumentMouseMove = function(event) {
     var animationEnd = this.findAnimationEnd();
     if (this.time < 0) this.time = 0;
     if (this.time > animationEnd) this.time = animationEnd;
-    log(this.time)
   }
 
   // 这里是拖动关键帧
@@ -474,6 +471,9 @@ Timeline.prototype.preUpdate = function() {
   this.updateGUI();
 };
 
+/**
+ * 刷新 Canvas 界面
+ */
 Timeline.prototype.updateGUI = function() {
   if (!this.canvas) {
     this.initGUI();

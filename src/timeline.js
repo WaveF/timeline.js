@@ -12,18 +12,31 @@
 
 (function(root){
   var Timeline = function() {
-    this.name = "Global";
-    this.anims = [];
-    this.time = 0;
-    this.totalTime = 0;
-    this.loopCount = 0;
-    this.loopMode = 0;
-    this.playing = true;
-    var self = this;
-    this.fps = 30;
-    this.loopInterval = setInterval(function() {
+      this.name = "Global";
+      this.anims = [];
+      this.time = 0;
+      this.totalTime = 0;
+      this.loopCount = 0;
+      this.loopMode = 0;
+      this.playing = true;
+      var self = this;
+      this.fps = 30;
+
+  var fpsInterval = 1000 / this.fps,
+      then = now = Date.now(),
+      elapsed = 0;
+  let tween = function() {
+    root.requestAnimationFrame(tween);
+
+    now = Date.now();
+    elapsed = now - then;
+    if (elapsed > fpsInterval) {
+      then = now - (elapsed % fpsInterval);
       self.update();
-    }, 1000/this.fps);
+    }
+  };
+  tween();
+
   };
 
   Timeline.getGlobalInstance = function() {
@@ -113,6 +126,7 @@
       if (this.time < propertyAnim.startTime || propertyAnim.hasEnded) {
         continue;
       }
+
       if (this.time >= propertyAnim.startTime && !propertyAnim.hasStarted) {
         var startValue = propertyAnim.target[propertyAnim.propertyName];
         if (startValue.length && startValue.indexOf('px') > -1) {
@@ -133,6 +147,7 @@
       t = propertyAnim.easing(t);
 
       var value = propertyAnim.startValue + (propertyAnim.endValue - propertyAnim.startValue) * t;
+      // console.log(value)
 
       if (propertyAnim.unit) value += propertyAnim.unit;
       propertyAnim.target[propertyAnim.propertyName] = value;
@@ -430,6 +445,9 @@
       Timeline.easingMap[easingFunctionFamilyName + "." + easingFunctionName] = easingFunctionFamily[easingFunctionName];
     }
   }
+
+
+  //--------------------------------------------------------------------
 
   Timeline.anim = anim;
 
