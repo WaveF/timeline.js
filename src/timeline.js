@@ -1,7 +1,11 @@
-//  Timeline.js v0.1 / 2011-05-01
-//  A compact JavaScript animation library with a GUI timeline for fast editing.
-//  by Marcin Ignac (http://marcinignac.com)
-//
+/**
+ * Timeline.js
+ * A compact JavaScript animation library with a GUI timeline for fast editing.
+ * 
+ * v0.2 - Forked by WaveF (wavef@qq.com) / 2022-08-26
+ * v0.1 - Created by Marcin Ignac (http://marcinignac.com) / 2011-05-01
+ */
+
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,6 +23,7 @@
     this.loopCount = 0;
     this.loopMode = 0;
     this.playing = true;
+    this.version = 0.2;
     var self = this;
     this.fps = 30;
 
