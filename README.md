@@ -17,6 +17,15 @@ http://marcinignac.com/blog/timeline-js/
 [WaveF](https://gitee.com/wavef)
 
 
+## 注意
+
+此版本被我修改后与官方原版存在**较大差异**，需要注意几点：
+- `anim()`方法不再是全局对象，需要通过`Timeline.anim()`调用
+- 单击关键帧编辑，现在已被改为需要通过**双击**进行触发
+- 添加了一个`Timeline.clear()`方法用于精准清除动画缓存
+- `CommonJS`模块导出名称从`Timeline`改为`TimelineJS`
+- 新增功能：支持鼠标框选并拖拽一个或多个关键帧
+
 ## 安装
 
 #### cdn
